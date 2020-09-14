@@ -1,0 +1,20 @@
+1) Note that I assume you already know how to apply effects to a model.
+2) In the MMEffects tab within MikuMikuDance, open the Map Effect File
+window and find the "mario.pmx" object. NOTE: Works for Fire, Ice, Flying,
+ and Cap models, too.
+3) Right-click on it and select "Subset-Extract"
+4)You will see a list of materials appear under the object. Apply the
+following effects to each material (the normal-mapping effects are found 
+in the same folder containing the model's textures):
+
+For MARIO:
+
+Body/Cap -> Mario_all.fx
+All other Materials -> mario_eye.fx
+
+For SHADOW MARIO:
+
+Body/Cap -> Mario_all.fx
+Eyes -> mario_eye.fx
+Eye Glow -> N/A
+All Brush-related materials -> default.fx
