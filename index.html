@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>three.js webgl - morphtargets - MD2 controls</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <!-- <link type="text/css" rel="stylesheet" href="main.css"> -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <style>
+          #show {
+            display: none;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body style="margin: 0; overflow: hidden;" >
+    <!-- <audio src="kda/kda3.mp3" autoplay="autoplay"></audio> -->
+    <script src="three.js-master/examples/js/libs/ammo.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r71/three.min.js"></script>
+ 
+    <script type="module">
+
+        import * as THREE from './three.js-master/build/three.module.js';
+
+
+        // ----
+        import { OrbitControls } from './three.js-master/examples/jsm/controls/OrbitControls.js';
+        import { MD2CharacterComplex } from './three.js-master/examples/jsm/misc/MD2CharacterComplex.js';
+        import { Gyroscope } from './three.js-master/examples/jsm/misc/Gyroscope.js';
+
+        // ----
+        import { OutlineEffect } from './three.js-master/examples/jsm/effects/OutlineEffect.js';
+        import { MMDLoader } from './three.js-master/examples/jsm/loaders/MMDLoader.js';
+        import { MMDAnimationHelper } from './three.js-master/examples/jsm/animation/MMDAnimationHelper.js';
+        // ----
+        import { SVGLoader } from './three.js-master/examples/jsm/loaders/SVGLoader.js';
+        // ----
+        import { DDSLoader } from './three.js-master/examples/jsm/loaders/DDSLoader.js';
+        import { MTLLoader } from './three.js-master/examples/jsm/loaders/MTLLoader.js';
+        import { OBJLoader } from './three.js-master/examples/jsm/loaders/OBJLoader.js';
+        // ----
+        import { TTFLoader } from './three.js-master/examples/jsm/loaders/TTFLoader.js';
+        // ----
+        import { Lensflare, LensflareElement } from './three.js-master/examples/jsm/objects/Lensflare.js';
+        // import { Lut }  from './three.js-master/examples/js/math/Lut.js';
+
+
+
+
+        // ----
+        var SCREEN_WIDTH = window.innerWidth;
+        var SCREEN_HEIGHT = window.innerHeight;
+
+        var container, stats;
+        var camera, scene, raycaster, renderer;
+
+        var mouse = new THREE.Vector2(), INTERSECTED;
+
+        var characters = [];
+        var nCharacters = 0;
+
+        var cameraControls;
+
+        var controls = {
+
+            moveForward: false,
+            moveBackward: false,
+            moveLeft: false,
+            moveRight: false
+
+        };
+
+        var container, stats;
+
+        var mesh, camera, scene, renderer, effect;
+        var helper, ikHelper, physicsHelper;
+        var light1, light2, light3, light4, dirLight, pointLight;
+        var group, textMesh1, textGeo, materialFont;
+
+        var text = 'U n i v e r s e';
+        var star1 = new THREE.Group();
+        var stara = new THREE.Group();
+        var staraa = new THREE.Group();
+        var starb = new THREE.Group();
+        var starc = new THREE.Group();
+        var stard = new THREE.Group();
+        var Center = new THREE.Group();
+        var Switch = new THREE.Group();
+        var Ps4 = new THREE.Group();
+        var Xbox = new THREE.Group();
+        var Pc = new THREE.Group();
+        var Psv = new THREE.Group();
+
+   
+
+        var font = null;
+        var clock = new THREE.Clock();
+        //
+
+        Ammo().then(function (AmmoLib) {
+
+            Ammo = AmmoLib;
+            init();
+            animate();
+        });
+
+        function init() {
+
+            container = document.createElement('div');
+            document.body.appendChild(container);
+
+            // CAMERA
+
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 4000);
+            camera.position.set(0, 600, 2000);
+          
+            // SCENE
+
+            scene = new THREE.Scene();
+            // scene.fog = new THREE.Fog(0x000000,1000,4000);
+            scene.add(camera);
+           
+
+
+            // lights
+                scene.add( new THREE.AmbientLight( 0x666666,0.1 ) );
+
+				var light = new THREE.DirectionalLight( 0xdfebff, 1 );
+				light.position.set( 50, 200, 100 );
+				light.position.multiplyScalar( 1.3 );
+
+				light.castShadow = true;
+
+				light.shadow.mapSize.width = 1024;
+				light.shadow.mapSize.height = 1024;
+
+				var d = 300;
+
+				light.shadow.camera.left = - d;
+				light.shadow.camera.right = d;
+				light.shadow.camera.top = d;
+				light.shadow.camera.bottom = - d;
+
+				light.shadow.camera.far = 1000;
+
+				scene.add( light );
+
+          //lights
+        var sphere = new THREE.SphereBufferGeometry(0.5, 16, 8);
+        // //紅光
+        light1 = new THREE.PointLight(0xff0040, 100, 200);
+        light1.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({
+            color: 0xff0040
+        })));
+        scene.add(light1);
+        // //藍光
+
+        light2 = new THREE.PointLight(0x0040ff, 100, 200);
+        light2.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({
+            color: 0x0040ff
+        })));
+        scene.add(light2);
+
+        // //綠光
+        light3 = new THREE.PointLight(0x80ff80, 100, 200);
+        light3.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({
+            color: 0x80ff80
+        })));
+        scene.add(light3);
+        // //黃光
+        light4 = new THREE.PointLight(0xffaa00, 100, 200);
+        light4.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({
+            color: 0xffaa00
+        })));
+        scene.add(light4);
+
+
+            //  光暈lensflares
+            // var textureLoader = new THREE.TextureLoader();
+
+            // var textureFlare0 = textureLoader.load('./three.js-master/examples/textures/lensflare/lensflare0.png');
+            // var textureFlare3 = textureLoader.load('./three.js-master/examples/textures/lensflare/hexangle.png');
+
+           
+            // addLight( 0.08, 0.8, 0.5, 500, 0, - 1500 );  
+            // addLight( 0.995, 0.5, 0.9, 0, 0, - 1500 );
+            // addLight(0.55, 0.9, 0.5, 0, 0, 400);
+            
+            // function addLight(h, s, l, x, y, z) {
+
+            //     var light = new THREE.PointLight(0xffffff, 0.5, 2000);
+            //     light.color.setHSL(h, s, l);
+            //     light.position.set(x, y, z);
+            //     scene.add(light);
+
+            //     var lensflare = new Lensflare();
+            //     lensflare.addElement(new LensflareElement(textureFlare0, 300, 0, light.color));
+            //     lensflare.addElement(new LensflareElement(textureFlare3, 700, 0.6));
+            //     lensflare.addElement(new LensflareElement(textureFlare3, 70, 0.7));
+            //     lensflare.addElement(new LensflareElement(textureFlare3, 120, 0.9));
+            //     lensflare.addElement(new LensflareElement(textureFlare3, 700, 1));
+            //     light.add(lensflare);
+
+            // }
+
+
+
+
+
+            //Font
+    
+         
+            materialFont = [
+                new THREE.MeshNormalMaterial({ flatShading: true }), // front
+                new THREE.MeshNormalMaterial({ flatShading: true }) // side
+            ];
+                      
+            
+            group = new THREE.Group();
+            group.position.x = -1200;
+            group.position.y = 200;
+            group.position.z = -800;
+
+            scene.add(group);
+
+            var loader = new TTFLoader();
+
+            loader.load('fonts/ttf/kenpixel.ttf', function (json) {
+
+                font = new THREE.Font(json);
+                createText();
+
+            });
+
+            function createText() {
+
+                textGeo = new THREE.TextBufferGeometry(text, {
+
+                    font: font,
+                    size: 110,
+                    height: 40,
+                    hover: 30,
+                    curveSegments: 4,
+                    bevelThickness: 2,
+                    bevelSize: 1.5
+
+                });
+                
+                textMesh1 = new THREE.Mesh(textGeo, materialFont);
+            
+
+                textMesh1.position.x = 620;
+                textMesh1.rotation.x = 0;
+                textMesh1.rotation.y = 0;
+                group.add(textMesh1);
+            }
+
+            // 粒子貼圖
+
+
+
+            //  GROUND
+
+                var gt = new THREE.TextureLoader().load( "skybox/right.png" );
+				var gg = new THREE.PlaneBufferGeometry( 16000, 16000 );
+				var gm = new THREE.MeshPhongMaterial( { color: 0xffffff, map: gt } );
+
+				var ground = new THREE.Mesh( gg, gm );
+				ground.rotation.x = - Math.PI / 2;
+				ground.material.map.repeat.set( 64, 64 );
+				ground.material.map.wrapS = THREE.RepeatWrapping;
+				ground.material.map.wrapT = THREE.RepeatWrapping;
+				ground.material.map.encoding = THREE.sRGBEncoding;
+				// note that because the ground does not cast a shadow, .castShadow is left false
+				ground.receiveShadow = true;
+
+				scene.add( ground );
+
+            //star
+            var starPoints = [], numPts = 5;
+
+            for (var i = 0; i < numPts * 2; i++) {
+
+                var l = i % 2 == 1 ? 30 : 50;
+
+                var a = i / numPts * Math.PI;
+
+                starPoints.push(new THREE.Vector2(Math.cos(a) * l, Math.sin(a) * l));
+
+            }
+
+
+            var starShape = new THREE.Shape(starPoints);
+
+
+            var extrusionSettings = {
+                steps: 0,
+                depth: 0,
+                bevelEnabled: true,
+                bevelThickness: 15,
+                bevelSize: 15,
+                bevelOffset: 10,
+                bevelSegments: 10
+            };
+
+            var starGeometry = new THREE.ExtrudeGeometry(starShape, extrusionSettings);
+        
+            var starMaterial = new THREE.MeshLambertMaterial({color:0x676767, wireframe: false });
+            var starMateriala = new THREE.MeshLambertMaterial({color:0x464646, wireframe: false });
+            var starMaterialb = new THREE.MeshLambertMaterial({color:0x464646, wireframe: false });
+            var starMaterialc = new THREE.MeshLambertMaterial({color:0x464646,wireframe: false });
+            var starMateriald = new THREE.MeshLambertMaterial({color:0x585858, wireframe: false });
+            starMaterial.emissive.setHex(0xFFFF37);  
+            starMateriala.emissive.setHex(0xf19193);  
+            starMaterialb.emissive.setHex(0xCE9EF6);  
+            starMaterialc.emissive.setHex(0x95E9D6);  
+            starMateriald.emissive.setHex(0x6e9eff);
+       
+         
+            var star = new THREE.Mesh(starGeometry, starMaterial);
+            var starA = new THREE.Mesh(starGeometry, starMateriala);
+            var starB = new THREE.Mesh(starGeometry, starMaterialb);
+            var starC = new THREE.Mesh(starGeometry, starMaterialc);
+            var starD = new THREE.Mesh(starGeometry, starMateriald);
+            // 中間
+            star.scale.set(6, 6, 6);
+            star.rotation.x = - Math.PI / 2;
+            star.rotation.z = 56;
+            star.position.set(0, 50, 0);
+            star1=star;
+            //左上
+            starA.scale.set(3, 3, 3);
+            starA.rotation.x = - Math.PI / 2;
+            starA.rotation.z = 56;
+            starA.position.set(-800,100,-200);
+            stara=starA;
+            // 左下
+            starB.scale.set(3, 3, 3);
+            starB.rotation.x = - Math.PI / 2;
+            starB.rotation.z = 56;
+            starB.position.set(-600,100,600);
+            starb=starB;
+            // 右上
+            starC.scale.set(3, 3, 3);
+            starC.rotation.x = - Math.PI / 2;
+            starC.rotation.z = 56;
+            starC.position.set(800,100,-200);
+            starc=starC;
+            //右下
+            starD.scale.set(3, 3, 3);
+            starD.rotation.x = - Math.PI / 2;
+            starD.rotation.z = 56;
+            starD.position.set(600,100,600);
+            stard=starD;
+            staraa.add(stara);
+
+            scene.add(star1);
+            scene.add(stara);
+            scene.add(starb);
+            scene.add(starc);
+            scene.add(stard);
+            stara.name="blue";
+            starb.name="purple";
+            starc.name="green";
+            stard.name="red";
+
+            //star網格圖
+            // var wireframeTexture = new THREE.MeshBasicMaterial({ color: 0xFFFF37, wireframe: true, transparent: true });
+            // var star = new THREE.Mesh(starGeometry, wireframeTexture);
+            // star.scale.set(6, 6, 6);
+            // star.rotation.x = - Math.PI / 2;
+            // star.rotation.z = 56;
+            // star.position.set(0, -110, 0);
+
+            // scene.add(star);
+
+
+            // RENDERER
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+            container.appendChild(renderer.domElement);
+
+            //背景陰影
+            // renderer.outputEncoding = THREE.sRGBEncoding;
+            // renderer.shadowMap.enabled = true;
+            // renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+
+
+
+            // EVENTS
+
+            window.addEventListener('resize', onWindowResize, false);
+
+
+            //MMD
+
+            function onProgress(xhr) {
+
+                if (xhr.lengthComputable) {
+
+                    var percentComplete = xhr.loaded / xhr.total * 100;
+                    // console.log(Math.round(percentComplete, 2) + '% downloaded');
+
+                }
+
+            }
+
+
+            var modelFile = 'model/Kirby1.2.4/Kirby(low).pmx';
+            var vmdFiles = ['vmds/wavefile_v2.vmd'];
+            var cameraFiles = ['model/Kirby1.2.4/wavefile_camera.vmd' ];
+            
+			
+           
+     
+            // 右下
+            var modelFile2 = 'model/nook/nook/tom_nook.pmx';
+            // 右上
+            var modelFile3 = 'model/link/link/link.pmx';
+            //左上
+            var modelFile4 = 'model/mario/mario/mario.pmx';
+            //左下
+            var modelFile5 = 'model/Ryza/Ryza/Ryza.pmx';
+          
+           
+
+            helper = new MMDAnimationHelper({
+                afterglow: 2.0
+            });
+
+            var loader = new MMDLoader();
+            var loader2 = new MMDLoader();
+            var loader3 = new MMDLoader();
+            var loader4 = new MMDLoader();
+            var loader5 = new MMDLoader();
+
+            loader.loadWithAnimation(modelFile, vmdFiles, function (mmd) {
+
+                mesh = mmd.mesh;
+                mesh.castShadow = true; //開啟影子
+                mesh.scale.set(20, 20, 20);
+                mesh.position.set(0,140,0);
+                Center.add(mesh);
+                scene.add(Center);
+
+
+
+                helper.add(mesh, {
+                    animation: mmd.animation,
+                    physics: true
+                });
+              
+                ikHelper = helper.objects.get(mesh).ikSolver.createHelper();
+                ikHelper.visible = false;
+                scene.add(ikHelper);
+
+
+                physicsHelper = helper.objects.get(mesh).physics.createHelper();
+                physicsHelper.visible = false;
+
+                scene.add(physicsHelper);
+
+
+            }, onProgress, null);
+             // 右下
+            loader2.loadWithAnimation(modelFile2, vmdFiles, function (mmd) {
+
+                mesh = mmd.mesh;
+                mesh.castShadow = true; //開啟影子
+                mesh.scale.set(12, 12, 12);
+                mesh.position.set(600,155,600);
+                Center.add(mesh);
+                scene.add(Center);
+
+
+
+                helper.add(mesh, {
+                    animation: mmd.animation,
+                    physics: true
+                });
+
+                ikHelper = helper.objects.get(mesh).ikSolver.createHelper();
+                ikHelper.visible = false;
+                scene.add(ikHelper);
+
+
+                physicsHelper = helper.objects.get(mesh).physics.createHelper();
+                physicsHelper.visible = false;
+
+                scene.add(physicsHelper);
+
+
+            }, onProgress, null);
+             // 右上
+            loader3.loadWithAnimation(modelFile3, vmdFiles, function (mmd) {
+
+                mesh = mmd.mesh;
+                mesh.castShadow = true; //開啟影子
+                mesh.scale.set(12, 12, 12);
+                mesh.position.set(800,150,-200);
+                Center.add(mesh);
+                scene.add(Center);
+
+
+
+                helper.add(mesh, {
+                    animation: mmd.animation,
+                    physics: true
+                });
+
+                ikHelper = helper.objects.get(mesh).ikSolver.createHelper();
+                ikHelper.visible = false;
+                scene.add(ikHelper);
+
+
+                physicsHelper = helper.objects.get(mesh).physics.createHelper();
+                physicsHelper.visible = false;
+
+                scene.add(physicsHelper);
+
+
+            }, onProgress, null);
+             //左下
+            loader4.loadWithAnimation(modelFile4, vmdFiles, function (mmd) {
+
+                mesh = mmd.mesh;
+                mesh.castShadow = true; //開啟影子
+                mesh.scale.set(12, 12, 12);
+                mesh.position.set(-600,150,600);
+                Center.add(mesh);
+                scene.add(Center);
+
+
+
+                helper.add(mesh, {
+                    animation: mmd.animation,
+                    physics: true
+                });
+
+                ikHelper = helper.objects.get(mesh).ikSolver.createHelper();
+                ikHelper.visible = false;
+                scene.add(ikHelper);
+
+
+                physicsHelper = helper.objects.get(mesh).physics.createHelper();
+                physicsHelper.visible = false;
+
+                scene.add(physicsHelper);
+
+
+            }, onProgress, null);
+            //左上
+            loader5.loadWithAnimation(modelFile5, vmdFiles, function (mmd) {
+
+                mesh = mmd.mesh;
+                mesh.castShadow = true; //開啟影子
+                mesh.scale.set(12, 12, 12);
+                mesh.position.set(-800,150,-200);
+                Center.add(mesh);
+                scene.add(Center);
+
+
+
+                helper.add(mesh, {
+                    animation: mmd.animation,
+                    physics: true
+                });
+
+                ikHelper = helper.objects.get(mesh).ikSolver.createHelper();
+                ikHelper.visible = false;
+                scene.add(ikHelper);
+
+
+                physicsHelper = helper.objects.get(mesh).physics.createHelper();
+                physicsHelper.visible = false;
+
+                scene.add(physicsHelper);
+
+
+            }, onProgress, null);
+
+  
+
+           
+
+
+
+
+            // // model
+
+            // var onProgress = function (xhr) {
+
+            //     if (xhr.lengthComputable) {
+
+            //         var percentComplete = xhr.loaded / xhr.total * 100;
+            //         // console.log(Math.round(percentComplete, 2) + '% downloaded');
+
+            //     }
+
+            // };
+
+            // var onError = function () { };
+
+            // var manager = new THREE.LoadingManager();
+            // manager.addHandler(/\.dds$/i, new DDSLoader());
+
+            // //SWITCH
+            // new MTLLoader(manager)
+            //     .setPath('model/sw/')
+            //     .load('SWITCH.mtl', function (materials) {
+
+            //         materials.preload();
+
+            //         new OBJLoader(manager)
+            //             .setMaterials(materials)
+            //             .setPath('model/sw/')
+            //             .load('SWITCH.obj', function (object) {
+            //                 object.position.x = -40;
+            //                 object.position.z = 310;
+            //                 object.position.y = 10;
+            //                 object.rotation.y = 0;
+            //                 object.scale.set(25, 25, 25);
+            //                 Switch.add(object);
+            //                 scene.add(Switch);
+
+
+            //             }, onProgress, onError);
+
+            //     });
+            // //XBOX
+            // new MTLLoader(manager)
+            //     .setPath('model/XBOX/')
+            //     .load('XBOX.mtl', function (materials) {
+
+            //         materials.preload();
+
+            //         new OBJLoader(manager)
+            //             .setMaterials(materials)
+            //             .setPath('model/XBOX/')
+            //             .load('XBOX.obj', function (object) {
+
+            //                 object.position.x = -100;
+            //                 object.position.z = -300;
+            //                 object.position.y = 17;
+            //                 object.rotation.y = 0;
+            //                 object.scale.set(8, 8, 8);
+            //                 Xbox.add(object);
+            //                 scene.add(Xbox);
+
+            //             }, onProgress, onError);
+
+            //     });
+
+            // // PS4
+            // new MTLLoader(manager)
+            //     .setPath('model/PS4/')
+            //     .load('PS4.mtl', function (materials) {
+
+            //         materials.preload();
+
+            //         new OBJLoader(manager)
+            //             .setMaterials(materials)
+            //             .setPath('model/PS4/')
+            //             .load('PS4.obj', function (object) {
+
+            //                 object.position.x = -350;
+            //                 object.position.z = 50;
+            //                 object.position.y = 25;
+            //                 object.rotation.y = 0;
+            //                 object.scale.set(1.5, 1.5, 1.5);
+            //                 Ps4.add(object);
+            //                 scene.add(Ps4);
+
+            //             }, onProgress, onError);
+
+            //     });
+
+
+            // //PS5
+            // new MTLLoader(manager)
+            //     .setPath('model/PS5/')
+            //     .load('PS5_light.mtl', function (materials) {
+
+            //         materials.preload();
+
+            //         new OBJLoader(manager)
+            //             .setMaterials(materials)
+            //             .setPath('model/PS5/')
+            //             .load('PS5_light.obj', function (object) {
+
+
+            //                 object.position.x = 250;
+            //                 object.position.z = -180;
+            //                 object.position.y = 8;
+            //                 object.rotation.y = 300;
+            //                 object.scale.set(0.3, 0.3, 0.3);
+            //                 Psv.add(object);
+            //                 scene.add(Psv);
+
+
+            //             }, onProgress, onError);
+
+            //     });
+
+
+            // //pc
+           
+            // new MTLLoader(manager)
+            //     .setPath('model/pc/')
+            //     .load('pc_green.mtl', function (materials) {
+
+            //         materials.preload();
+
+            //         new OBJLoader(manager)
+            //             .setMaterials(materials)
+            //             .setPath('model/pc/')
+            //             .load('pc_pink.obj', function (object) {
+
+            //                 object.position.x = 300;
+            //                 object.position.z = 199;
+            //                 object.position.y = 9;
+            //                 object.rotation.y = 0;
+            //                 object.scale.set(0.5, 0.5, 0.5);
+            //                 Pc.add(object);
+            //                 scene.add(Pc);
+
+
+            //             }, onProgress, onError);
+
+            //     });
+
+
+
+            //控制場景大小
+            var controls = new OrbitControls(camera, renderer.domElement);
+            // controls.minDistance = 100;
+            // controls.maxDistance = 3000;
+
+
+          
+
+            // //建立背景
+            // var geometry = new THREE.BoxGeometry(3000, 3000, 3000);
+            // // 順序 右 左 上 下 前 後
+            // var cubeMaterials = [
+            //     new THREE.MeshBasicMaterial({
+            //         map: new THREE.TextureLoader().load('skybox/right.png'),
+            //         side: THREE.DoubleSide
+            //     }),
+            //     new THREE.MeshBasicMaterial({
+            //         map: new THREE.TextureLoader().load('skybox/left.png'),
+            //         side: THREE.DoubleSide
+            //     }),
+            //     new THREE.MeshBasicMaterial({
+            //         map: new THREE.TextureLoader().load('skybox/top.png'),
+            //         side: THREE.DoubleSide
+            //     }),
+            //     new THREE.MeshBasicMaterial({
+            //         map: new THREE.TextureLoader().load('skybox/bottom.png'),
+            //         side: THREE.DoubleSide
+            //     }),
+            //     new THREE.MeshBasicMaterial({
+            //         map: new THREE.TextureLoader().load('skybox/front.png'),
+            //         side: THREE.DoubleSide
+            //     }),
+            //     new THREE.MeshBasicMaterial({
+            //         map: new THREE.TextureLoader().load('skybox/back.png'),
+            //         side: THREE.DoubleSide
+            //     })
+            // ];
+            // var material = new THREE.MeshFaceMaterial(cubeMaterials);
+            // var cube = new THREE.Mesh(geometry, material);
+            // scene.add(cube);
+
+
+
+           
+         
+            // var geometry = new THREE.BoxBufferGeometry( 100, 100, 100 );
+            // var material = new THREE.MeshBasicMaterial({color: 0xffff00,transparent: true,opacity: 0,side: THREE.BackSide} );
+            // var aaa = new THREE.Mesh( geometry, material );
+            // aaa.position.x = 0;
+            // aaa.position.y = 50;
+            // aaa.position.z = 0;
+            
+            // scene.add(aaa);
+      
+            // aaa.name="888";
+            // var geometry = new THREE.BoxBufferGeometry( 100, 100, 100 );
+            // var material = new THREE.MeshBasicMaterial( { color: 0xffff00,transparent: true,opacity: 0,side: THREE.BackSide } );
+            // var bbb = new THREE.Mesh( geometry, material );
+            // bbb.position.x = 250;
+            // bbb.position.y = 8;
+            // bbb.position.z =-180;
+            // scene.add(bbb);
+            // bbb.name="777";
+       
+             //click事件
+         
+            //  document.addEventListener('mousedown', onDocumentMouseDown, false);
+               
+         
+        }
+
+        function onWindowResize() {
+
+            SCREEN_WIDTH = window.innerWidth;
+            SCREEN_HEIGHT = window.innerHeight;
+
+            renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+            camera.aspect = SCREEN_WIDTH / SCREEN_HEIGHT;
+            camera.updateProjectionMatrix();
+
+        }
+
+    
+
+      
+     
+        // function onDocumentMouseDown(event) {
+        //     event.preventDefault();
+        //     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        //     mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+        //     raycaster = new THREE.Raycaster();
+        //     raycaster.setFromCamera(mouse, camera);
+
+        //     var intersects = raycaster.intersectObjects(scene.children);
+         
+        //     switch (intersects[0].object.name) {
+        //         case "blue":
+        //         intersects[0].object.material.emissive.setHex(0xf5ced7);
+        //              break;
+        //         case "green":
+        //         intersects[0].object.material.emissive.setHex(0xbfe995);
+        //             break;
+        //         case "purple":
+        //         intersects[0].object.material.emissive.setHex(0x9ee4f6);
+        //             break;
+        //         case "red":
+        //         intersects[0].object.material.emissive.setHex(0xf19193);
+        //             break;
+            
+        //         default:
+        //             break;
+        //     }
+        // }
+
+
+        function animate() {
+            
+            render();
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+
+        }
+      
+        var times =1;
+        // 左到右場景
+        window.setTimeout(function(){
+            times =2;
+            camera.position.set(-500,400, 1500);
+        }, 6000);
+         //左下特寫
+         window.setTimeout(function(){
+            times =9;
+            camera.position.set(-600,250, 900);
+        }, 9000);
+        // 右到後場景
+        window.setTimeout(function(){
+            times =3;
+            camera.position.set(500,600, 1200);
+        }, 11000);
+        // 右上特寫
+        window.setTimeout(function(){
+            times =10;
+            camera.position.set(800,300, 50);
+        }, 14000);
+      
+        // 左方場景
+        window.setTimeout(function(){
+            times =5;
+            camera.position.set(-800,300, 1500);
+        }, 16000);
+        //左上特寫
+        window.setTimeout(function(){
+            times =7;
+            camera.position.set(-830,330,-60);
+        },19000);
+       
+       
+        // 右方場景
+        window.setTimeout(function(){
+            times =6;
+            camera.position.set(1200,400,1000);
+        }, 21000);
+        // 右下特寫
+        window.setTimeout(function(){
+            times =8;
+            camera.position.set(600,250,900);
+        }, 24000);
+        //上方場景
+            window.setTimeout(function(){
+            times =4;
+            camera.position.set(0,1000, 1500);
+        }, 26000);
+        
+         window.setTimeout(function(){
+            times =99;
+            camera.position.set(0,600, 1500);
+        }, 30000);
+       
+     
+       
+       
+       
+        function render() {
+
+            camera.lookAt(scene.position);
+
+            var time = Date.now() *  0.003;
+            var timer = Date.now() * 0.0005;
+     
+            //obj公轉
+            star1.rotation.z += 0.005;
+            stara.rotation.z += 0.005;
+            starb.rotation.z += 0.005;
+            starc.rotation.z += 0.005;
+            stard.rotation.z += 0.005;
+            // star1.position.x = Math.sin(time * 7) * 80;
+            // star1.position.y = Math.cos(time * 5) * 10;
+            // star1.position.z = Math.cos(time * 3) * 80;
+    
+       
+            // Center.rotation.y += 0.005 ;
+            // Center.position.x = Math.sin(time * 7) * 80;
+            // Center.position.y = Math.cos(time * 5) * 100;
+            // Center.position.z = Math.cos(time * 3) * 80;
+
+            // Switch.rotation.y += 0.005;
+            // Switch.position.x = Math.sin(time * 7) * 8;
+            // Switch.position.y = Math.cos(time * 5) * 10;
+            // Switch.position.z = Math.cos(time * 3) * 8;
+            // Ps4.rotation.y += 0.005;
+            // Ps4.position.x = Math.sin(time * 7) * 8;
+            // Ps4.position.y = Math.cos(time * 5) * 10;
+            // Ps4.position.z = Math.cos(time * 3) * 8;
+            // Xbox.rotation.y += 0.005;
+            // Xbox.position.x = Math.sin(time * 7) * 8;
+            // Xbox.position.y = Math.cos(time * 5) * 10;
+            // Xbox.position.z = Math.cos(time * 3) * 8;
+            // Psv.rotation.y += 0.005;
+            // Psv.position.x = Math.sin(time * 7) * 8;
+            // Psv.position.y = Math.cos(time * 5) * 10;
+            // Psv.position.z = Math.cos(time * 3) * 8;
+            // Pc.rotation.y += 0.005;
+            // Pc.position.x = Math.sin(time * 7) * 8;
+            // Pc.position.y = Math.cos(time * 5) * 10;
+            // Pc.position.z = Math.cos(time * 3) * 8;
+
+            //燈光旋轉
+            light1.position.x = Math.sin( time * 0.7 ) * 1000;
+			light1.position.y = Math.cos( time * 0.5 ) * 100;
+			light1.position.z = Math.cos( time * 0.3 ) * 1000;
+
+			light2.position.x = Math.cos( time * 0.3 ) * 1000;
+			light2.position.y = Math.sin( time * 0.5 ) * 100;
+			light2.position.z = Math.sin( time * 0.7 ) * 1000;
+
+			light3.position.x = Math.sin( time * 0.7 ) * 1000;
+			light3.position.y = Math.cos( time * 0.3 ) * 100;
+			light3.position.z = Math.sin( time * 0.5 ) * 1000;
+
+			light4.position.x = Math.sin( time * 0.3 ) * 600;
+			light4.position.y = Math.cos( time * 0.7 ) * 100;
+			light4.position.z = Math.sin( time * 0.5 ) * 600;
+
+
+            //相機旋轉
+          
+           
+            switch (times) {
+                case 1:
+                camera.position.z -= 5;
+                    break;
+                case 2:
+                camera.position.x += 5;
+                    break;
+                case 3:
+                camera.position.z += 2;
+                    break;
+                case 4:
+                camera.position.y += 4;
+                camera.lookAt(0,0,100);
+                    break;
+                case 5:
+                camera.position.z -= 2;
+                    break;
+                case 6:
+                camera.position.z -= 1;
+                camera.position.x -= 1;
+                    break;
+                case 7:
+                camera.position.y += 0.5;
+                camera.position.z += 0.5;
+                camera.lookAt(-830,300,-200);
+                    break;
+                case 8:
+                // camera.position.y += 0.03;
+                // camera.position.z += 0.5;
+                camera.lookAt(600,250,200);
+                    break;
+                case 9:
+                camera.lookAt(-600,200,-200);
+                    break;
+                case 10:
+                camera.position.x += 0.5;
+               
+                camera.lookAt(680,400,-800);
+                    break;
+                default:
+                camera.position.x = Math.sin( time * 0.5 )*60;
+                    break;
+            
+            }
+          
+       
+            helper.update(clock.getDelta());
+            renderer.render(scene, camera);
+            
+        }
+        
+    </script>
+ 
+</body>
+
+</html>
